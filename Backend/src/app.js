@@ -24,5 +24,5 @@ app.get("/api/health",(req,res)=>
         return res.status(500).json({succes:false,message:error.message})
     }
 });
-app.use("/api/user",authroutes);
+app.use("/api/auth",authroutes);
 export default app;

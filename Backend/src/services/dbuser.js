@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { createUser,findUserByEmail,findUserById } from "../models/dbuser.js";
+import nodemailer from "nodemailer"
 
 export const registerUser = async({email,name,password})=>
 {
@@ -88,3 +89,80 @@ export const loginUser = async({email,password})=>
     {
     return findUserById(userId);
     }
+    export const googleLoginUser = async (user) => {
+    const accessToken = jwt.sign(
+        { userId: user.id },
+        process.env.JWT_SECRET,
+        { expiresIn: "5m" }
+    );
+
+    const refreshToken = jwt.sign(
+        { userId: user.id },
+        process.env.JWT_REFRESH_TOKEN,
+        { expiresIn: "2d" }
+    );
+
+    return {
+        user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            image_url: user.image_url,
+        },
+        accessToken,
+        refreshToken,
+    };
+};
+const transporter = nodemailer.createTransport({
+    service:"gmail",
+    auth:
+    {
+        user:process.env.EMAIL_USER,
+        pass:process.env.EMAIL_PASS
+    }
+})
+export const sendForgetPasswordOTP = async({email,otp})=>
+{
+    try{
+        await transporter.sendMail({
+            from:process.env.EMAIL_USER,
+            to:email,
+            subject:"Password Reset OTP",
+            html:
+            `<h2>Reset your Password</h2>
+            <p>Your OTP is:</p>
+            <h1>${otp}</h1>
+            <p>This otp will expire soon`
+            
+        });
+        console.log("OTP email sent successfully")
+    }
+    catch(error)
+    {
+        console.log("Email sending error",error.message);
+       throw error;
+    }
+   
+}
+export const verifyOtp = async(email,otp)=>
+{
+    const user = await findUserByEmail(email);
+    if(!user)
+    {
+        throw new Error("email is not registered")
+    }
+    if(!user.otp)
+    {
+        throw new Error ("Otp not found")
+    }
+    if(new Date()>new Date(user.otp_expiry))
+    {
+        throw new Error("Otp is expired")
+    }
+    const isOtpVerified = await bcrypt.compare(otp,user.otp);
+    if(!isOtpVerified)
+    {
+        throw new Error('Invalid otp')
+    }
+    return user
+}

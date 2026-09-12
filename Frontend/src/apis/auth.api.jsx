@@ -1,6 +1,6 @@
 export const signupUser = async(data)=>
 {
-    const response = await fetch("http://localhost:8080/api/auth/signup", 
+    const response = await fetch("http://localhost:8080/api/auth/register", 
         {
             method:"POST",
             headers:
@@ -23,7 +23,7 @@ export const loginUser = async(data)=>
         {
             method:"POST",
             headers:
-            {
+            {   
                 "Content-Type":"application/json",
             },
             credentials:"include",

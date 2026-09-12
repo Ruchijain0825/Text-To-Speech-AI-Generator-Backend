@@ -1,4 +1,6 @@
-import { registerUser,loginUser } from "../services/dbuser.js";
+import { registerUser,loginUser,googleLoginUser, sendForgetPasswordOTP,verifyOtp } from "../services/dbuser.js";
+import { forgetPassword as saveForgotPassword } from "../models/dbuser.js";
+import bcrypt from "bcrypt"
 
 export const signUp = async(req,res)=>
 {
@@ -61,4 +63,70 @@ export const login = async(req,res)=>
         return res.status(400).json({success:false,message:error.message})
     }
     return res.status(500).json({success:false,message:"Internla Server Error"})
+}
+export const googleCallback = async (req, res) => {
+    try {
+        const { user, accessToken, refreshToken } = await googleLoginUser(req.user);
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 2 * 24 * 60 * 60 * 1000
+        });
+
+        return res.redirect(
+            `${process.env.FRONTEND_URL}/auth/callback?accessToken=${accessToken}`
+        );
+    } catch (error) {
+        console.error("Google callback error:", error.message);
+
+        return res.redirect(
+            `${process.env.FRONTEND_URL}/login?error=google_auth_failed`
+        );
+    }
+};
+export const forgotPassword = async(req,res)=>
+{
+    try{
+        const {email} = req.body;
+        const otp = Math.floor(100000+Math.random()*900000).toString();
+        const otpExpiry = new Date(Date.now()+10*60*1000);
+       
+        const otpHash = await bcrypt.hash(otp,5)
+
+         const user=await saveForgotPassword({email,otp:otpHash,otpExpiry});
+        if(!user)
+        {
+            return res.status(404).json({success:false,message:"Email is not registererd"})
+        }
+
+        
+        await sendForgetPasswordOTP({email,otp});
+        return res.status(200).json({success:true,message:"Otp sent successfully"})
+    }
+    catch(error)
+    {
+        console.error("forgot password error",error.message);
+        return res.status(500).json({success:false,message:"Internal server error"})
+    }
+}
+
+export const verifyOTP = async(req,res)=>
+{
+    try{
+        const{email,otp}=req.body;
+        if(!email||!otp)
+        {
+            return res.status(400).send({success:false,message:"email and otp is required"})
+        }
+        await verifyOtp(email,otp)
+        return res.status(201).send({success:true,message:"otp verified successfully"})
+    }
+    catch(error)
+    {
+        console.error("verification failed",error.message);
+        return res.status(400).send({success:false,message:error.message})
+    }
+   
 }
