@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import authroutes from "./routes/dbuser.auth.js"
 import translatorroutes from './routes/texttospeech.user.js'
+import aiRouter from "./routes/airoute.js";
 const app = express();
 app.use(cors({
     origin:process.env.FRONTEND_URL,
@@ -26,5 +27,6 @@ app.get("/api/health",(req,res)=>
     }
 });
 app.use("/api/auth",authroutes);
-app.use("/api/translate",translatorroutes)
+app.use("/api/translate",translatorroutes);
+app.use("/api/ai", aiRouter);
 export default app;

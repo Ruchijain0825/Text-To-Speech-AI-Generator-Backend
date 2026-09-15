@@ -6,9 +6,7 @@ const genAI = new GoogleGenerativeAI(
 );
 
 
-// ===============================
-// GET ELEVENLABS VOICES
-// ===============================
+
 
 export const getVoices = async (req, res) => {
     try {

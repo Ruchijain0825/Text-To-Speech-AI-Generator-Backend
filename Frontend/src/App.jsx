@@ -1,48 +1,61 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Header from "./layout/Header";
-import MainLayout from "./layout/MainLayout";
 import Sidebar from "./layout/Sidebar";
-import UserAuth from './auth/UserAuth.jsx';
-import { Toaster, toast } from "react-hot-toast";
+
+import { Toaster } from "react-hot-toast";
 
 import TextToSpeechInput from "./components/TextToSpeechInput.jsx";
 import GeneratedAudio from "./components/GeneratedAudio.jsx";
-function App()
-{
-  return(
-    <> 
+import AIConversation from "./components/AiConversation.jsx";
 
-    <Toaster/>
-     <div className="flex h-screen overflow-hidden bg-[#fafbff]">
+function App() {
+  return (
+    <BrowserRouter>
+      <Toaster />
 
-      {/* SIDEBAR */}
+      <div className="flex h-screen overflow-hidden bg-[#fafbff]">
 
-      <Sidebar />
+        {/* SIDEBAR */}
+        <Sidebar />
 
+        {/* RIGHT SIDE */}
+        <div className="flex min-w-0 flex-1 flex-col">
 
-      {/* RIGHT SIDE */}
+          {/* HEADER */}
+          <Header />
 
-      <div className="flex min-w-0 flex-1 flex-col">
+          {/* MAIN */}
+          <main className="min-h-0 flex-1 overflow-y-auto">
 
-        {/* HEADER */}
+            <Routes>
 
-        <Header />
+              {/* TEXT TO SPEECH */}
+              <Route
+                path="/"
+                element={
+                  <>
+                    <TextToSpeechInput />
+                    <GeneratedAudio />
+                  </>
+                }
+              />
 
+              {/* AI CONVERSATION */}
+              <Route
+                path="/ai-conversation"
+                element={<AIConversation />}
+              />
 
-        {/* MAIN */}
+            </Routes>
 
-        <main className="min-h-0 flex-1 overflow-y-auto">
-          <TextToSpeechInput/>
-          <GeneratedAudio/>
+          </main>
 
-         
-
-        </main>
+        </div>
 
       </div>
-
-    </div>
-   
-   </>
-  )
+    </BrowserRouter>
+  );
 }
+
 export default App;
