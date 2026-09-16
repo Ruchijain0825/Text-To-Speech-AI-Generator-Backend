@@ -31,18 +31,19 @@ const Sidebar = () => {
       <nav className="flex flex-col gap-2 p-4 text-sm">
 
         {/* Text to Speech */}
-        <a
-          href="#"
+        <button
+          type="button"
+          onClick={() => navigate("/dashboard/text-to-speech")}
           className="shadow-sm flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-[#635BFF] hover:text-gray-900"
         >
           <Volume2 size={20} />
           <span>Text to Speech</span>
-        </a>
+        </button>
 
         {/* AI Conversation */}
         <button
           type="button"
-          onClick={() => navigate("/ai-conversation")}
+          onClick={() => navigate("/dashboard/ai-conversation")}
           className="shadow-sm flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-[#635BFF] hover:text-gray-900"
         >
           <Bot size={20} />
@@ -50,46 +51,49 @@ const Sidebar = () => {
         </button>
 
         {/* Live Conversation */}
-        <a
-          href="#"
+        <button
+          type="button"
+          onClick={() => navigate("/dashboard/live-conversation")}
           className="shadow-sm flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-[#635BFF] hover:text-gray-900"
         >
           <UserRound size={20} />
           <span>Live Conversation</span>
-        </a>
+        </button>
 
         {/* History */}
-        <a
-          href="#"
+        <button
+          type="button"
+          onClick={() => navigate("/dashboard/history")}
           className="shadow-sm flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-[#635BFF] hover:text-gray-900"
         >
           <History size={20} />
           <span>History</span>
-        </a>
+        </button>
 
         {/* Saved Conversation */}
-        <a
-          href="#"
+        <button
+          type="button"
+          onClick={() => navigate("/dashboard/saved")}
           className="shadow-sm flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-[#635BFF] hover:text-gray-900"
         >
           <Bookmark size={20} />
           <span>Saved Conversation</span>
-        </a>
+        </button>
 
         {/* Settings */}
-        <a
-          href="#"
+        <button
+          type="button"
+          onClick={() => navigate("/dashboard/settings")}
           className="shadow-sm flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-[#635BFF] hover:text-gray-900"
         >
           <Settings size={20} />
           <span>Setting</span>
-        </a>
+        </button>
 
       </nav>
 
       {/* Robot + Upgrade */}
       <section>
-
         <img
           src={robot}
           className="mx-auto mt-1 w-40"
@@ -99,16 +103,13 @@ const Sidebar = () => {
         <div className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-[#635BFF] hover:text-gray-900">
           Upgrade to Pro
         </div>
-
       </section>
 
       {/* Profile */}
       <footer>
-
         <div className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-[#635BFF] hover:text-gray-900">
           Profile
         </div>
-
       </footer>
 
     </aside>

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import HelpModal from './HelpModal.jsx'
 import AccountModal from "./AccountModal.jsx";
+import socket from "../socket.js";
 const Header = ()=>
 {
     const[showHelp,setShowHelp]=useState(false);
@@ -14,6 +15,13 @@ const Header = ()=>
         setShowBlack(!showBlack);
         document.body.style.backgroundColor= !showBlack ? "white":"black"
      }
+     const handleLogout = () => {
+        socket.disconnect();
+  localStorage.removeItem("user");
+  localStorage.removeItem("accessToken");
+
+  window.location.href = "/login";
+};
     return(
         <>
         
@@ -27,6 +35,13 @@ const Header = ()=>
             <button onClick = {()=>{setShowAccountDetails(true);setShowHelp(false)}} type = "button" className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-500 text-sm font-semibold text-white" aria-label = "profile">R
 
             </button>
+            <button
+  onClick={handleLogout}
+  type="button"
+  className="text-red-500 transition hover:text-red-700"
+>
+  Logout
+</button>
          </div>
 
          </header>

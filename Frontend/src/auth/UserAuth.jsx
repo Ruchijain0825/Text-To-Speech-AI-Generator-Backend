@@ -3,6 +3,7 @@ import {useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { FcGoogle } from "react-icons/fc";
 import { loginUser,signupUser } from "../apis/auth.api.jsx";
+import { useNavigate } from "react-router-dom";
 
 import {useMutation} from "@tanstack/react-query"
 import { Toaster, toast } from "react-hot-toast";
@@ -11,7 +12,9 @@ import {OTPVerification} from './OtpSent.jsx'
 
 const UserAuth = ()=>
 
-{   const [showForgot, setShowForgot] = useState(false);
+{   
+    const navigate = useNavigate();
+    const [showForgot, setShowForgot] = useState(false);
     const [verifyOtp,setVerifyOtp] = useState(false)
     const[isLogin,setIsLogin]=useState(true)
     const[name,setName]=useState("");
@@ -23,10 +26,24 @@ const UserAuth = ()=>
       mutationFn:loginUser,
       onSuccess:(data)=>
       {
-        console.log("Login successful",data);
-        toast.success(data.message);
-        setEmail("");
-        setPassword("")
+         console.log("Login successful", data);
+
+  toast.success(data.message);
+
+  localStorage.setItem(
+    "user",
+    JSON.stringify(data.user)
+  );
+
+  localStorage.setItem(
+    "accessToken",
+    data.accessToken
+  );
+
+  setEmail("");
+  setPassword("");
+
+  navigate("/dashboard");
         
       },
       onError:(error)=>

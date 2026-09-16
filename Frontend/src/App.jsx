@@ -1,59 +1,61 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import Header from "./layout/Header";
-import Sidebar from "./layout/Sidebar";
+import UserAuth from "./auth/UserAuth";
+import Dashboard from "./pages/Dashboard";
 
-import { Toaster } from "react-hot-toast";
-
-import TextToSpeechInput from "./components/TextToSpeechInput.jsx";
-import GeneratedAudio from "./components/GeneratedAudio.jsx";
-import AIConversation from "./components/AiConversation.jsx";
+import TextToSpeechInput from "./components/TextToSpeechInput";
+import AIConversation from "./components/AiConversation";
+import LiveConversation from "./components/LiveConversation";
 
 function App() {
   return (
     <BrowserRouter>
-      <Toaster />
+      <Routes>
 
-      <div className="flex h-screen overflow-hidden bg-[#fafbff]">
+        {/* Login */}
+        <Route path="/login" element={<UserAuth />} />
 
-        {/* SIDEBAR */}
-        <Sidebar />
+        {/* Dashboard */}
+        <Route path="/dashboard" element={<Dashboard />}>
 
-        {/* RIGHT SIDE */}
-        <div className="flex min-w-0 flex-1 flex-col">
-
-          {/* HEADER */}
-          <Header />
-
-          {/* MAIN */}
-          <main className="min-h-0 flex-1 overflow-y-auto">
-
-            <Routes>
-
-              {/* TEXT TO SPEECH */}
-              <Route
-                path="/"
-                element={
-                  <>
-                    <TextToSpeechInput />
-                    <GeneratedAudio />
-                  </>
-                }
+          {/* Default → Text to Speech */}
+          <Route
+            index
+            element={
+              <Navigate
+                to="/dashboard/text-to-speech"
+                replace
               />
+            }
+          />
 
-              {/* AI CONVERSATION */}
-              <Route
-                path="/ai-conversation"
-                element={<AIConversation />}
-              />
+          {/* Text to Speech */}
+          <Route
+            path="text-to-speech"
+            element={<TextToSpeechInput />}
+          />
 
-            </Routes>
+          {/* AI Conversation */}
+          <Route
+            path="ai-conversation"
+            element={<AIConversation />}
+          />
 
-          </main>
+          {/* Live Conversation */}
+          <Route
+            path="live-conversation"
+            element={<LiveConversation />}
+          />
 
-        </div>
+        </Route>
 
-      </div>
+        {/* Unknown route */}
+        <Route
+          path="*"
+          element={<Navigate to="/login" replace />}
+        />
+
+      </Routes>
     </BrowserRouter>
   );
 }

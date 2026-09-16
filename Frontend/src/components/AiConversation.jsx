@@ -33,7 +33,7 @@ const AIConversation = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/ai/chat",
+        "http://localhost:8080/api/ai/chat",
         {
           message: userMessage,
           history: messages,
