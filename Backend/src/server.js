@@ -5,7 +5,6 @@ import pool from "./config/db.js";
 import app from "./app.js";
 
 const PORT = process.env.PORT || 8080;
-
 const server = http.createServer(app);
 
 const io = new Server(server, {
@@ -18,25 +17,19 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  // USER ONLINE
+  
   socket.on("user_online", async (userId) => {
     try {
       socket.userId = userId;
-
-      // User ke personal room mein join
       socket.join(userId);
 
       await pool.query(
-        `UPDATE dbusers
-         SET is_online = TRUE,
-             last_seen = NULL
-         WHERE id = $1`,
+        `UPDATE dbusers SET is_online = TRUE, last_seen = NULL WHERE id = $1`,
         [userId]
       );
 
-      // Sab connected users ko notify karo
       io.emit("user_status_changed", {
-        userId: userId,
+        userId,
         is_online: true,
         last_seen: null,
       });
@@ -47,128 +40,130 @@ io.on("connection", (socket) => {
     }
   });
 
-  // SEND MESSAGE
+
   socket.on("send_message", async (data) => {
     try {
-      const {
-        conversation_id,
-        sender_id,
-        receiver_id,
-        message,
-        message_type = "text",
-      } = data;
+      const { conversationId, senderId, receiverId, message, messageType = "text", attachmentUrl=null } = data;
 
-      if (
-        !conversation_id ||
-        !sender_id ||
-        !receiver_id ||
-        !message
-      ) {
-        return;
-      }
-
+      if (!conversationId || !senderId || !receiverId || !message) return;
+      if(!message.trim()&&!attachmentUrl) return;
       const result = await pool.query(
-        `INSERT INTO messages
-        (
-          conversation_id,
-          sender_id,
-          receiver_id,
-          message,
-          message_type
-        )
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING *`,
-        [
-          conversation_id,
-          sender_id,
-          receiver_id,
-          message,
-          message_type,
-        ]
+        `INSERT INTO messages (conversation_id, sender_id, receiver_id, message, message_type,attachment_url)
+         VALUES ($1, $2, $3, $4, $5,$6) RETURNING *`,
+        [conversationId, senderId, receiverId, message, messageType,attachmentUrl]
       );
 
       const newMessage = result.rows[0];
 
-      // Receiver ko message
-      io.to(receiver_id).emit(
-        "receiver_message",
-        newMessage
-      );
+     
+      io.to(receiverId).emit("receive_message", {
+        ...newMessage,
+        conversationId: newMessage.conversation_id,
+        senderId: newMessage.sender_id,
+        receiverId: newMessage.receiver_id,
+        messageType:newMessage.message_type,
+        attachmentUrl:newMessage.attachment_url
+      });
 
       // Sender ko confirmation
-      socket.emit(
-        "message_sent",
-        newMessage
-      );
+      socket.emit("message_sent", {...newMessage,
+        conversationId:newMessage.conversation_id,
+      senderId:newMessage.sender_id,
+      receiverId:newMessage.receiver_id,
+      messageType:newMessage.message_type,
+      attachmentUrl:newMessage.attachment_url
+    });
 
     } catch (error) {
-      console.log(
-        "Send message error:",
-        error.message
-      );
+      console.log("Send message error:", error.message);
     }
   });
+  socket.on("edit_message",async(data)=>
+  {
+    try{
 
-  // USER OFFLINE / DISCONNECT
+    
+    const{messageId,message,senderId}=data;
+
+    if(!messageId||!message||!senderId){
+      return;
+    };
+    const result = await pool.query(
+      `UPDATE  messages SET message = $1 ,is_edited = TRUE,edited_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id = $2 AND sender_id = $3 AND is_deleted = FALSE RETURNING *`,[message,messageId,senderId]
+    )
+    if(result.rows.length===0)
+    {
+      return;
+    }
+    const updatedMessage = result.rows[0];
+    io.to(updatedMessage.receiver_id).emit("message_updated",updatedMessage);
+    socket.emit("message_updated",updatedMessage)
+  }
+  catch(error)
+  {
+    console.error("edit message error",error.message);
+
+  }
+})
+socket.on("delete_message",async(data)=>
+{
+  try{
+    const{messageId,senderId}=data;
+    if(!messageId||!senderId)
+    {
+      return;
+    }
+    const result = await pool.query(`UPDATE messages SET message = 'This message was deleted',is_deleted = TRUE,deleted_at=CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND sender_id = $2 AND is_deleted = FALSE RETURNING *`,[messageId,senderId]);
+    if(result.rows.length===0)
+    {
+      return
+    }
+    const deletedMessage = result.rows[0];
+    io.to(deletedMessage.receiver_id).emit("message_deleted",deletedMessage);
+    socket.emit("message_deleted",deletedMessage);
+  }
+  catch(error)
+  {
+    console.error("Delete message error",error.message)
+  }
+})
   socket.on("disconnect", async () => {
     try {
-      if (!socket.userId) {
-        return;
-      }
+      if (!socket.userId) return;
 
       const result = await pool.query(
         `UPDATE dbusers
-         SET is_online = FALSE,
-             last_seen = CURRENT_TIMESTAMP
-         WHERE id = $1
-         RETURNING last_seen`,
+         SET is_online = FALSE, last_seen = CURRENT_TIMESTAMP
+         WHERE id = $1 RETURNING last_seen`,
         [socket.userId]
       );
 
-      // Sab connected users ko notify karo
       io.emit("user_status_changed", {
         userId: socket.userId,
         is_online: false,
-        last_seen:
-          result.rows[0]?.last_seen || null,
+        last_seen: result.rows[0]?.last_seen || null,
       });
 
-      console.log(
-        "User offline:",
-        socket.userId
-      );
+      console.log("User offline:", socket.userId);
 
     } catch (error) {
-      console.log(
-        "Disconnect error:",
-        error.message
-      );
+      console.log("Disconnect error:", error.message);
     }
   });
 });
 
 
-// DATABASE + SERVER
 const connection = async () => {
   try {
     await pool.query("SELECT NOW()");
-
-    console.log(
-      "PostgreSQL connected successfully"
-    );
+    console.log("PostgreSQL connected successfully");
 
     server.listen(PORT, () => {
-      console.log(
-        `Server is running on ${PORT}`
-      );
+      console.log(`Server is running on ${PORT}`);
     });
 
   } catch (error) {
-    console.log(
-      "Database connection failed:",
-      error.message
-    );
-
+    console.log("Database connection failed:", error.message);
     process.exit(1);
   }
 };

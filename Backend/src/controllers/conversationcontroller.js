@@ -171,3 +171,22 @@ export const getUsers = async (req, res) => {
     });
   }
 };
+export const getMessages = async(req,res)=>
+{
+  try{
+    const{conversationId}=req.params
+    if(!conversationId)
+    {
+      return res.status(400).json({success:false,message:"Conversation not found"})
+    }
+    const result = await pool.query(`SELECT * FROM messages WHERE conversation_id =$1 ORDER BY created_at ASC`,[conversationId]);
+
+    return res.status(200).send({success:true,message:result.rows})
+  }
+  catch(error)
+  {
+    console.error("failed to fetch",error.message)
+
+    return res.status(500).json({success:false,message:"failed to fetch messages"})
+  }
+}
