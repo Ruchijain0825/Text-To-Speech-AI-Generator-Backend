@@ -1,6 +1,6 @@
 import express from "express";
 
-import { googleCallback, login , signUp ,forgotPassword, verifyOTP } from "../controllers/dbuser.controller.js";
+import { googleCallback, login , signUp ,forgotPassword, verifyOTP , resendOTP,resetPassword } from "../controllers/dbuser.controller.js";
 
 import passport from "../config/googleOAuth.js";
 const router = express.Router();
@@ -10,4 +10,6 @@ router.get("/google",passport.authenticate("google",{scope:["profile","email"],s
 router.get("/google/callback",passport.authenticate("google",{session:false,failureRedirect:`${process.env.FRONTEND_URL}/login?error=google_auth_failed`}),googleCallback);
 router.post("/forgetpassword",forgotPassword);
 router.post("/verifyotp",verifyOTP)
+router.post("/resendotp",resendOTP)
+router.post("/resetpassword", resetPassword);
 export default router;

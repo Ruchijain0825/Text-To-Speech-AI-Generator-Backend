@@ -26,7 +26,7 @@ const UserAuth = ()=>
       mutationFn:loginUser,
       onSuccess:(data)=>
       {
-         console.log("Login successful", data);
+        
 
   toast.success(data.message);
 
@@ -48,7 +48,7 @@ const UserAuth = ()=>
       },
       onError:(error)=>
       {
-        console.log("Login unsuccessful",error.message);
+       
         toast.error(error.message)
       }
     })
@@ -56,7 +56,7 @@ const UserAuth = ()=>
       mutationFn:signupUser,
       onSuccess:(data)=>
       {
-        console.log("Registration successful",data);
+       
         toast.success(data.message);
         setName("");
         setEmail("");
@@ -65,7 +65,7 @@ const UserAuth = ()=>
       },
       onError:(error)=>
       {
-        console.log("Registration unsuccessful",error.message);
+        
         toast.error(error.message)
       }
     })
@@ -156,7 +156,7 @@ const UserAuth = ()=>
          
             <div className="flex flex items-center justify-start gap-20"> 
              {isLogin ? (<> 
-             <p>craete a new account</p><span><a onClick={()=>setIsLogin(false)} className="text-blue-600 font-semibold " href = "#">signup</a></span> </>):(<>
+             <p>create a new account</p><span><a onClick={()=>setIsLogin(false)} className="text-blue-600 font-semibold " href = "#">signup</a></span> </>):(<>
              
              
              <p>Already have an account</p><span><a onClick ={()=>setIsLogin(true)} className="text-blue-600 font-semibold " href = "#">Login</a></span> </>)}

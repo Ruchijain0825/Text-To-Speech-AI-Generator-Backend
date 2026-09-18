@@ -24,3 +24,20 @@ export const forgetPassword = async({email,otp,otpExpiry})=>
     const result = await pool.query(`UPDATE dbusers SET otp =$1,otp_expiry = $2 WHERE email = $3 RETURNING email,otp,otp_expiry`,[otp,otpExpiry,email]);
     return result.rows[0]
 }
+export const resetPassword = async ({
+    email,
+    passwordHash
+}) => {
+
+    const result = await pool.query(
+        `UPDATE dbusers
+         SET password_hash = $1,
+             otp = NULL,
+             otp_expiry = NULL
+         WHERE email = $2
+         RETURNING id,email,name`,
+        [passwordHash, email]
+    );
+
+    return result.rows[0];
+};

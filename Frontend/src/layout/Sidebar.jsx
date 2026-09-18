@@ -81,15 +81,7 @@ const Sidebar = () => {
         </button>
 
         {/* Settings */}
-        <button
-          type="button"
-          onClick={() => navigate("/dashboard/settings")}
-          className="shadow-sm flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-[#635BFF] hover:text-gray-900"
-        >
-          <Settings size={20} />
-          <span>Setting</span>
-        </button>
-
+       
       </nav>
 
       {/* Robot + Upgrade */}
@@ -100,9 +92,7 @@ const Sidebar = () => {
           alt="robot-img"
         />
 
-        <div className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-[#635BFF] hover:text-gray-900">
-          Upgrade to Pro
-        </div>
+       
       </section>
 
       {/* Profile */}

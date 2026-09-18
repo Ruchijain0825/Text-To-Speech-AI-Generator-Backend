@@ -1,26 +1,22 @@
-import Sidebar from "./Sidebar";
-import Header from "./Header";
-
 const MainLayout = () => {
-    return (
-        <div className="flex min-h-screen border-4 ">
 
-           
-            <div className="border-2 ">
+    console.log("🔥🔥 MAIN LAYOUT IS RUNNING");
+
+    return (
+        <div className="flex min-h-screen">
+
+            <div className="w-64 border-r-4 border-red-500">
                 <Sidebar />
             </div>
 
-            
-            <div className="flex flex-1 flex-col border-2 ">
+            <div className="flex flex-1 flex-col">
 
-              
-                <div className="border-2 ">
+                <div className="border-b-4 border-blue-500">
                     <Header />
                 </div>
 
-             
-                <main className="mt-6 ml-6 flex-1 border-2 text-gray-200  p-6 shadow-lg">
-                    Main Section
+                <main className="flex-1 bg-gray-50">
+                    <Outlet />
                 </main>
 
             </div>

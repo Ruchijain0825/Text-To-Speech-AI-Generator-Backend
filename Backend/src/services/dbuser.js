@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { createUser,findUserByEmail,findUserById } from "../models/dbuser.js";
+import { createUser,findUserByEmail,findUserById , resetPassword as updatePassword } from "../models/dbuser.js";
 import nodemailer from "nodemailer"
 
 export const registerUser = async({email,name,password})=>
@@ -50,41 +50,49 @@ export const registerUser = async({email,name,password})=>
     
    
 }
-export const loginUser = async({email,password})=>
-{
-    const user = await findUserByEmail(email)
-   
+export const loginUser = async ({ email, password }) => {
+    const user = await findUserByEmail(email);
 
-    if(!user)
-    {
-        throw new Error("Email is not registered")
+   ;
+
+    if (!user) {
+        throw new Error("Email is not registered");
     }
-    const isPasswordMatch = await bcrypt.compare(password,user.password_hash);
-    if(!isPasswordMatch)
-    {
+
+    const isPasswordMatch = await bcrypt.compare(
+        password,
+        user.password_hash
+    );
+
+    
+
+    if (!isPasswordMatch) {
         throw new Error("Invalid email or password");
-
     }
 
-    const accessToken =  jwt.sign({userId:user.id},process.env.JWT_SECRET,{expiresIn:'1h'});
+    const accessToken = jwt.sign(
+        { userId: user.id },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+    );
 
-    const refreshToken = jwt.sign({userId:user.id},process.env.JWT_REFRESH_TOKEN,{expiresIn:"2d"})
+    const refreshToken = jwt.sign(
+        { userId: user.id },
+        process.env.JWT_REFRESH_TOKEN,
+        { expiresIn: "2d" }
+    );
 
     return {
-    
-        user:
-        {
-            id:user.id,
-            email:user.email,
-            name:user.name,
-            image_url:user.image_url
+        user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            image_url: user.image_url
         },
-
         accessToken,
         refreshToken
-    }
-
-}
+    };
+};
      export const getUserById = async(userId)=>
     {
     return findUserById(userId);
@@ -135,16 +143,16 @@ export const sendForgetPasswordOTP = async({email,otp})=>
             <p>This otp will expire soon`
             
         });
-        console.log("OTP email sent successfully")
+        
     }
     catch(error)
     {
-        console.log("Email sending error",error.message);
+       console.log("Email sending error",error.message);
        throw error;
     }
    
 }
-export const verifyOtp = async(email,otp)=>
+export const verifyOtp = async({email,otp})=>
 {
     const user = await findUserByEmail(email);
     if(!user)
@@ -166,3 +174,27 @@ export const verifyOtp = async(email,otp)=>
     }
     return user
 }
+export const resetUserPassword = async ({
+  email,
+  otp,
+  password
+}) => {
+
+  
+  await verifyOtp(email, otp);
+
+
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  // Update password
+  const user = await updatePassword({
+    email,
+    passwordHash
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return user;
+};

@@ -1,43 +1,209 @@
+const API_URL = "http://localhost:8080";
+
+const getToken = () =>
+  localStorage.getItem("accessToken");
+
+
 export const getUsers = async () => {
-  const url = "http://localhost:8080/api/user/users"
-
-  console.log("REQUEST URL:", url);
-
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-    },
-    credentials: "include",
-  });
-
-  console.log("STATUS:", response.status);
+  const response = await fetch(
+    `${API_URL}/api/user/users`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
   const text = await response.text();
-
-  console.log("RESPONSE:", text);
+  const data = text ? JSON.parse(text) : {};
 
   if (!response.ok) {
-    throw new Error(text || "Failed to fetch users");
+    throw new Error(
+      data.message || "Failed to fetch users"
+    );
   }
 
-  return JSON.parse(text);
+  return data;
 };
-export const getMessages = async(conversationId)=>
-{
-  const response = await fetch(url,
+
+
+export const getMessages = async (conversationId) => {
+  const response = await fetch(
+    `${API_URL}/api/user/messages/${conversationId}`,
     {
-      headers:
-      {
-        Authorization:`Bearer ${localStorage.getItem("accessToken")}`,
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+        "Content-Type": "application/json",
       },
-      credentials:"include"
     }
-  )
+  );
+
   const text = await response.text();
-  if(!response.ok)
-  {
-    throw new Error(text||"failed to fetch messages")
+  const data = text ? JSON.parse(text) : {};
+
+  if (!response.ok) {
+    throw new Error(
+      data.message || "Failed to fetch messages"
+    );
   }
-  return JSON.parse(text)
-}
+
+  return data;
+};
+
+
+export const createConversation = async (user2_id) => {
+  const response = await fetch(
+    `${API_URL}/api/user/create`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user2_id,
+      }),
+    }
+  );
+
+  const text = await response.text();
+  const data = text ? JSON.parse(text) : {};
+
+  if (!response.ok) {
+    throw new Error(
+      data.message || "Failed to create conversation"
+    );
+  }
+
+  return data;
+};
+
+
+/* =========================================================
+   SAVE CONVERSATION
+========================================================= */
+
+export const saveConversation = async (conversationId) => {
+    const response = await fetch(
+        `${API_URL}/api/user/save`,
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem(
+                    "accessToken"
+                )}`,
+            },
+
+            credentials: "include",
+
+            body: JSON.stringify({
+                conversationId,
+            }),
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.message || "Failed to save conversation"
+        );
+    }
+
+    return data;
+};
+
+
+export const unsaveConversation = async (
+    conversationId
+) => {
+    const response = await fetch(
+        `${API_URL}/api/user/save/${conversationId}`,
+        {
+            method: "DELETE",
+
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem(
+                    "accessToken"
+                )}`,
+            },
+
+            credentials: "include",
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.message || "Failed to unsave conversation"
+        );
+    }
+
+    return data;
+};
+
+
+export const checkSavedConversation = async (
+    conversationId
+) => {
+    const response = await fetch(
+        `${API_URL}/api/user/save/${conversationId}`,
+        {
+            method: "GET",
+
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem(
+                    "accessToken"
+                )}`,
+            },
+
+            credentials: "include",
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            "Failed to check saved conversation"
+        );
+    }
+
+    return data;
+};
+
+
+export const getSavedConversations = async () => {
+    const response = await fetch(
+        `${API_URL}/api/user/saved`,
+        {
+            method: "GET",
+
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem(
+                    "accessToken"
+                )}`,
+            },
+
+            credentials: "include",
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            "Failed to fetch saved conversations"
+        );
+    }
+
+    return data;
+};

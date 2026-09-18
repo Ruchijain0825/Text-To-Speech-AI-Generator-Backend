@@ -11,10 +11,7 @@ const genAI = new GoogleGenerativeAI(
 export const getVoices = async (req, res) => {
     try {
 
-        console.log(
-            "ELEVEN KEY EXISTS:",
-            !!process.env.ELEVEN_LABS_KEY
-        );
+       
 
         const response = await axios.get(
             "https://api.elevenlabs.io/v2/voices",
@@ -25,10 +22,7 @@ export const getVoices = async (req, res) => {
             }
         );
 
-        console.log(
-            "ELEVENLABS VOICES:",
-            response.data.voices.length
-        );
+        
 
         return res.status(200).json({
             success: true,
@@ -37,20 +31,9 @@ export const getVoices = async (req, res) => {
 
     } catch (error) {
 
-        console.log(
-            "GET VOICES ERROR:",
-            error.message
-        );
+       
 
-        console.log(
-            "GET VOICES STATUS:",
-            error.response?.status
-        );
-
-        console.log(
-            "GET VOICES DATA:",
-            error.response?.data
-        );
+       
 
         return res.status(
             error.response?.status || 500
@@ -64,9 +47,7 @@ export const getVoices = async (req, res) => {
 };
 
 
-// ===============================
-// GEMINI TRANSLATION
-// ===============================
+
 
 const translateText = async (text, language) => {
 
@@ -74,10 +55,8 @@ const translateText = async (text, language) => {
         model: "gemini-2.5-flash"
     });
 
-    const prompt = `
-You are a translation and content-safety system.
-
-Translate the user's text into ${language}.
+    const prompt = ` You are a translation and content-safety system.
+                     Translate the user's text into ${language}.
 
 Rules:
 1. Return only the translated text.
@@ -93,16 +72,14 @@ Text: ${text}
 
     const result = await model.generateContent(prompt);
 
-    const translatedText =
-        result.response.text().trim();
+    const translatedText =  result.response.text().trim();
+       
 
     return translatedText;
 };
 
 
-// ===============================
-// GENERATE SPEECH
-// ===============================
+
 
 export const generateSpeech = async (req, res) => {
 
@@ -115,10 +92,7 @@ export const generateSpeech = async (req, res) => {
         } = req.body;
 
 
-        // -------------------------------
-        // VALIDATION
-        // -------------------------------
-
+     
         if (!text?.trim()) {
 
             return res.status(400).json({
@@ -146,9 +120,7 @@ export const generateSpeech = async (req, res) => {
         }
 
 
-        // -------------------------------
-        // GEMINI TRANSLATION
-        // -------------------------------
+       
 
         const translatedText =
             await translateText(
@@ -156,15 +128,7 @@ export const generateSpeech = async (req, res) => {
                 language
             );
 
-        console.log(
-            "TRANSLATED TEXT:",
-            translatedText
-        );
-
-
-        // -------------------------------
-        // CONTENT SAFETY
-        // -------------------------------
+      
 
         if (
             translatedText ===
@@ -179,29 +143,7 @@ export const generateSpeech = async (req, res) => {
         }
 
 
-        // -------------------------------
-        // ELEVENLABS DEBUG
-        // -------------------------------
-
-        console.log(
-            "VOICE ID:",
-            voiceId
-        );
-
-        console.log(
-            "SENDING TEXT TO ELEVENLABS:",
-            translatedText
-        );
-
-        console.log(
-            "ELEVEN KEY EXISTS:",
-            !!process.env.ELEVEN_LABS_KEY
-        );
-
-
-        // -------------------------------
-        // ELEVENLABS TEXT TO SPEECH
-        // -------------------------------
+   
 
         const response = await axios.post(
 
@@ -233,9 +175,6 @@ export const generateSpeech = async (req, res) => {
         );
 
 
-        // -------------------------------
-        // SEND AUDIO
-        // -------------------------------
 
         res.set(
             "Content-Type",
@@ -250,36 +189,12 @@ export const generateSpeech = async (req, res) => {
     } catch (error) {
 
 
-        // -------------------------------
-        // ERROR HANDLING
-        // -------------------------------
-
-        console.log(
-            "=============================="
-        );
-
-        console.log(
-            "GENERATE SPEECH ERROR"
-        );
-
-        console.log(
-            "ERROR MESSAGE:",
-            error.message
-        );
-
-        console.log(
-            "ERROR STATUS:",
-            error.response?.status
-        );
+      
 
 
         let errorData =
             error.response?.data;
 
-
-        // ElevenLabs error can arrive
-        // as Buffer because responseType
-        // is arraybuffer
 
         if (
             Buffer.isBuffer(errorData)

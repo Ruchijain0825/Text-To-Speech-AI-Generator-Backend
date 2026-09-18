@@ -15,13 +15,13 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
 
   
   socket.on("user_online", async (userId) => {
     try {
-      socket.userId = userId;
-      socket.join(userId);
+      if(!userId)return;
+      socket.userId = String(userId);
+      socket.join(String(userId));
 
       await pool.query(
         `UPDATE dbusers SET is_online = TRUE, last_seen = NULL WHERE id = $1`,
@@ -29,12 +29,12 @@ io.on("connection", (socket) => {
       );
 
       io.emit("user_status_changed", {
-        userId,
+        userId:String(userId),
         is_online: true,
         last_seen: null,
       });
 
-      console.log("User online:", userId);
+      
     } catch (error) {
       console.error("Online status error:", error.message);
     }
@@ -45,7 +45,7 @@ io.on("connection", (socket) => {
     try {
       const { conversationId, senderId, receiverId, message, messageType = "text", attachmentUrl=null } = data;
 
-      if (!conversationId || !senderId || !receiverId || !message) return;
+      if (!conversationId || !senderId || !receiverId) return;
       if(!message.trim()&&!attachmentUrl) return;
       const result = await pool.query(
         `INSERT INTO messages (conversation_id, sender_id, receiver_id, message, message_type,attachment_url)
@@ -56,16 +56,16 @@ io.on("connection", (socket) => {
       const newMessage = result.rows[0];
 
      
-      io.to(receiverId).emit("receive_message", {
+      io.to(String(receiverId).emit("receive_message", {
         ...newMessage,
         conversationId: newMessage.conversation_id,
         senderId: newMessage.sender_id,
         receiverId: newMessage.receiver_id,
         messageType:newMessage.message_type,
         attachmentUrl:newMessage.attachment_url
-      });
+      }));
 
-      // Sender ko confirmation
+      
       socket.emit("message_sent", {...newMessage,
         conversationId:newMessage.conversation_id,
       senderId:newMessage.sender_id,
@@ -130,6 +130,13 @@ socket.on("delete_message",async(data)=>
   socket.on("disconnect", async () => {
     try {
       if (!socket.userId) return;
+      const userId = String(socket.userId);
+      const activeSockets = await io.in(userId).fetchSockets();
+      if(activeSockets.length>0)
+      {
+        console.log("User still connected:",userId,"connections",activeSockets.length);
+        return;
+      }
 
       const result = await pool.query(
         `UPDATE dbusers
@@ -139,12 +146,12 @@ socket.on("delete_message",async(data)=>
       );
 
       io.emit("user_status_changed", {
-        userId: socket.userId,
+        userId,
         is_online: false,
         last_seen: result.rows[0]?.last_seen || null,
       });
 
-      console.log("User offline:", socket.userId);
+      console.log("User offline:", userId);
 
     } catch (error) {
       console.log("Disconnect error:", error.message);

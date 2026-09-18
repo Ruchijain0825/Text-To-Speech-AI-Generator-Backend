@@ -1,5 +1,5 @@
-import { registerUser,loginUser,googleLoginUser, sendForgetPasswordOTP,verifyOtp } from "../services/dbuser.js";
-import { forgetPassword as saveForgotPassword } from "../models/dbuser.js";
+import { registerUser,loginUser,googleLoginUser, sendForgetPasswordOTP,verifyOtp ,resetUserPassword} from "../services/dbuser.js";
+import { forgetPassword as saveForgotPassword} from "../models/dbuser.js";
 import bcrypt from "bcrypt"
 
 export const signUp = async(req,res)=>
@@ -137,3 +137,108 @@ export const verifyOTP = async(req,res)=>
     }
    
 }
+export const resendOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required"
+      });
+    }
+
+    // Generate new OTP
+    const otp = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+
+    // OTP valid for 10 minutes
+    const otpExpiry = new Date(
+      Date.now() + 10 * 60 * 1000
+    );
+
+    // Hash OTP before saving
+    const otpHash = await bcrypt.hash(otp, 5);
+
+    // Update OTP in database
+    const user = await saveForgotPassword({
+      email,
+      otp: otpHash,
+      otpExpiry
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Email is not registered"
+      });
+    }
+
+    // Send new OTP
+    await sendForgetPasswordOTP({
+      email,
+      otp
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP resent successfully"
+    });
+
+  } catch (error) {
+    console.error(
+      "Resend OTP error:",
+      error.message
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+};
+export const resetPassword = async (req, res) => {
+    try {
+        const { email, otp, password } = req.body;
+
+        console.log("RESET EMAIL:", email);
+        console.log("RESET OTP RECEIVED:", !!otp);
+        console.log("RESET PASSWORD RECEIVED:", !!password);
+
+        if (!email || !otp || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "Email, OTP and password are required"
+            });
+        }
+
+        if (password.length < 8) {
+            return res.status(400).json({
+                success: false,
+                message: "Password must be at least 8 characters"
+            });
+        }
+
+        await resetUserPassword({
+            email,
+            otp,
+            password
+        });
+
+        console.log("PASSWORD RESET SUCCESSFULLY FOR:", email);
+
+        return res.status(200).json({
+            success: true,
+            message: "Password reset successfully"
+        });
+
+    } catch (error) {
+        console.error("Reset password error:", error.message);
+
+        return res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+};

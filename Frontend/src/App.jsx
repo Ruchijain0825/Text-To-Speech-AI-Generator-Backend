@@ -7,56 +7,86 @@ import TextToSpeechInput from "./components/TextToSpeechInput";
 import AIConversation from "./components/AiConversation";
 import LiveConversation from "./components/LiveConversation";
 
+import History from "./layout/History";
+import SavedConversation from "./layout/SavedConversation";
+import { Toaster } from "react-hot-toast";
+
 function App() {
   return (
+    <>
+     <Toaster position="top-right" />
     <BrowserRouter>
       <Routes>
 
-        {/* Login */}
-        <Route path="/login" element={<UserAuth />} />
+        {/* LOGIN */}
+        <Route
+          path="/login"
+          element={<UserAuth />}
+        />
 
-        {/* Dashboard */}
-        <Route path="/dashboard" element={<Dashboard />}>
+        {/* DASHBOARD */}
+        <Route
+          path="/dashboard"
+          element={<Dashboard />}
+        >
 
-          {/* Default → Text to Speech */}
+          {/* /dashboard */}
           <Route
             index
             element={
               <Navigate
-                to="/dashboard/text-to-speech"
+                to="text-to-speech"
                 replace
               />
             }
           />
 
-          {/* Text to Speech */}
+          {/* TEXT TO SPEECH */}
           <Route
             path="text-to-speech"
             element={<TextToSpeechInput />}
           />
 
-          {/* AI Conversation */}
+          {/* AI CONVERSATION */}
           <Route
             path="ai-conversation"
             element={<AIConversation />}
           />
 
-          {/* Live Conversation */}
+          {/* LIVE CONVERSATION */}
           <Route
             path="live-conversation"
             element={<LiveConversation />}
           />
 
+          {/* HISTORY */}
+          <Route
+            path="history"
+            element={<History />}
+          />
+
+          {/* SAVED CONVERSATION */}
+          <Route
+            path="saved"
+            element={<SavedConversation />}
+          />
+
         </Route>
 
-        {/* Unknown route */}
+        {/* UNKNOWN ROUTE */}
         <Route
           path="*"
-          element={<Navigate to="/login" replace />}
+          element={
+            <Navigate
+              to="/login"
+              replace
+            />
+          }
         />
 
       </Routes>
     </BrowserRouter>
+    </>
   );
 }
 
