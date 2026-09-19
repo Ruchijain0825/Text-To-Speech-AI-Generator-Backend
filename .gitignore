@@ -1,0 +1,9 @@
+﻿node_modules/
+Frontend/node_modules/
+Backend/node_modules/
+dist/
+Frontend/dist/
+Backend/dist/
+.env
+.env.*
+!.env.example
