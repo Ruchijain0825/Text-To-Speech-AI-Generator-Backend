@@ -1,6 +1,6 @@
 export const forgetPasswordApi = async (data) => {
   const response = await fetch(
-    "http://localhost:8080/api/auth/forgetpassword",
+    `${import.meta.env.VITE_API_URL}/api/auth/forgetpassword`,
     {
       method: "POST",
       headers: {
@@ -22,7 +22,7 @@ export const forgetPasswordApi = async (data) => {
 
 export const verifyOtpApi = async (data) => {
   const response = await fetch(
-    "http://localhost:8080/api/auth/verifyotp",
+    `${import.meta.env.VITE_API_URL}/api/auth/verifyotp`,
     {
       method: "POST",
       headers: {
@@ -44,7 +44,7 @@ export const verifyOtpApi = async (data) => {
 
 export const resendOtpApi = async (data) => {
   const response = await fetch(
-    "http://localhost:8080/api/auth/resendotp",
+    `${import.meta.env.VITE_API_URL}/api/auth/resendotp`,
     {
       method: "POST",
       headers: {
@@ -65,7 +65,7 @@ export const resendOtpApi = async (data) => {
 export const resetPasswordApi = async (data) => {
 
   const response = await fetch(
-    "http://localhost:8080/api/auth/resetpassword",
+    `${import.meta.env.VITE_API_URL}/api/auth/resetpassword`,
     {
       method: "POST",
 

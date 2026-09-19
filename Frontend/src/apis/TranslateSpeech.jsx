@@ -1,6 +1,6 @@
 export const TranslateSpeechGenerator = async (data) => {
     const response = await fetch(
-        "http://localhost:8080/api/translate/generate",
+     `${import.meta.env.VITE_API_URL}/api/translate/generate`,
         {
             method: "POST",
             headers: {
@@ -23,7 +23,7 @@ export const TranslateSpeechGenerator = async (data) => {
 
 export const VoiceGenerator = async () => {
     const response = await fetch(
-        "http://localhost:8080/api/translate/voices"
+        `${import.meta.env.VITE_API_URL}/api/translate/voices`
     );
 
     const result = await response.json();
