@@ -7,8 +7,13 @@ import aiRouter from "./routes/airoute.js";
 import conversationRouter from './routes/conversationroute.js'
 import uploadRouter from './routes/attachmentroute.js'
 const app = express();
+const allowedOrigins = [
+  "https://text-to-speech-ai-generator-backend-eight.vercel.app",
+  "https://text-to-speech-ai-generator-8hov-51gz3fgsj-ruchi5.vercel.app",
+  "http://localhost:5173",
+];
 app.use(cors({
-    origin:process.env.FRONTEND_URL,
+    origin:allowedOrigins,
     credentials:true,
 })
 );

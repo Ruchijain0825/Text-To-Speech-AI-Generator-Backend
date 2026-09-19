@@ -6,10 +6,15 @@ import app from "./app.js";
 
 const PORT = process.env.PORT || 8080;
 const server = http.createServer(app);
+const allowedOrigins = [
+  "https://text-to-speech-ai-generator-backend-eight.vercel.app",
+  "https://text-to-speech-ai-generator-8hov-51gz3fgsj-ruchi5.vercel.app",
+  "http://localhost:5173",
+];
 
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL,
+    origin: allowedOrigins,
     credentials: true,
   },
 });
