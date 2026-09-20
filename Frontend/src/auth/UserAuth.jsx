@@ -79,7 +79,7 @@ const UserAuth = () => {
 
         <p>or</p>
 
-        <button onClick={() => { window.location.href = "https://cloud-media-storage-backend.onrender.com/api/auth/google"; }} className="mt-5 flex h-10 w-80 items-center justify-center gap-2 rounded-xl border border-gray-300 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 px-4 py-2 text-white shadow-lg transition-all duration-300 hover:bg-white hover:bg-opacity-80 hover:text-gray-700 hover:backdrop-blur-md" type="button">
+        <button onClick={() => { window.location.href = "https://text-to-speech-ai-generator-backend.onrender.com/api/auth/google"; }} className="mt-5 flex h-10 w-80 items-center justify-center gap-2 rounded-xl border border-gray-300 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 px-4 py-2 text-white shadow-lg transition-all duration-300 hover:bg-white hover:bg-opacity-80 hover:text-gray-700 hover:backdrop-blur-md" type="button">
           <FcGoogle className="shrink-0 text-xl" /><span>Sign in with Google</span>
         </button>
 
