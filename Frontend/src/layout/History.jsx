@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MessageCircle, Clock, User } from "lucide-react";
-import { getConversationHistory } from "../api/conversationApi";
+import { getConversationHistory } from "../api/Conversation.api.jsx";
 import toast from "react-hot-toast";
 
 
