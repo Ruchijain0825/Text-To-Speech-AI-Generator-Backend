@@ -129,6 +129,13 @@ const transporter = nodemailer.createTransport({
         pass:process.env.EMAIL_PASS
     }
 })
+transporter.verify((error, success) => {
+    if (error) {
+        console.error("MAIL SERVER ERROR:", error);
+    } else {
+        console.log("MAIL SERVER READY");
+    }
+});
 export const sendForgetPasswordOTP = async({email,otp})=>
 {
     try{
