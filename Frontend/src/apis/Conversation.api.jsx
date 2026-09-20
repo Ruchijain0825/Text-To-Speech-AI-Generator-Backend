@@ -85,3 +85,26 @@ export const getSavedConversations = async () => {
   if (!response.ok) throw new Error(data.message || "Failed to fetch saved conversations");
   return data;
 };
+export const getConversationHistory = async () => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/api/user/history`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.message || "Failed to fetch conversation history"
+    );
+  }
+
+  return data;
+};

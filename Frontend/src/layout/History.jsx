@@ -1,48 +1,45 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MessageCircle, Clock, User } from "lucide-react";
+import { getConversationHistory } from "../api/conversationApi";
 import toast from "react-hot-toast";
 
-const API_URL = "http://localhost:8080";
+
 
 const History = () => {
   const navigate = useNavigate();
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+const getHistory = async () => {
+  try {
+    setLoading(true);
 
-  const getHistory = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("accessToken");
 
-      if (!token) {
-        toast.error("Please login again");
-        navigate("/login");
-        return;
-      }
-
-      const response = await fetch(`${API_URL}/api/user/history`, {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      });
-
-      const data = await response.json();
-      console.log("HISTORY RESPONSE:", data);
-
-      if (!response.ok) throw new Error(data.message || "Failed to fetch history");
-
-      setConversations(data.conversations || []);
-    } catch (error) {
-      console.error("HISTORY ERROR:", error);
-      toast.error(error.message || "Failed to load history");
-    } finally {
-      setLoading(false);
+    if (!token) {
+      toast.error("Please login again");
+      navigate("/login");
+      return;
     }
-  };
 
-  useEffect(() => {
-    getHistory();
-  }, []);
+    const data = await getConversationHistory();
+
+    console.log("HISTORY RESPONSE:", data);
+
+    setConversations(data.conversations || []);
+  } catch (error) {
+    console.error("HISTORY ERROR:", error);
+    toast.error(error.message || "Failed to load history");
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  getHistory();
+}, []);
+
 
   const formatDate = (date) => {
     if (!date) return "";
